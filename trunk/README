@@ -1,0 +1,54 @@
+Implemented features:
+- Full (almost) control of mpd (update db not implemented yet).
+- Full current playlist control.
+
+TODO:
+- browse mpd's music directory and append/replace songs to current playlist.
+- config file for wxsmps.
+- minor improvements.
+
+
+
+1)
+get wxBase from http://www.wxwidgets.org/dl_base.htm#stable
+
+configure wxBase as following:
+(tested and working here)
+./configure --disable-gui --enable-unicode --enable-sockets --with-regex
+make && make install
+
+2)
+compile wxsmps
+
+g++ `wx-config --cxxflags --libs base,net` -L/usr/local/lib -lmpd *.cpp -o wxsmps
+
+3)
+edit config of LCDd
+
+have drivers enabled in that order (lirc if you have a remote of course)
+Driver=lirc
+Driver=CFontz
+Driver=curses
+
+If you don't have a remote you will need curses pseudo lcd to be able to "send" keys to LCDd which are forwarded to the client app wxsmps. The keys give you the possibilty to control mpd player and to browse the playlist. The playlist and the settings are implemented as LCDd client menus. In my config of LCDd the </> is the menu enter/leave key and <Return> is the confirm key.
+
+The wxsmps client keys are currently these:
+#Handy on the NumPad...
+/*client keys*/
+#define DEFAULT_KEY_STOP_STRING				"0"
+#define DEFAULT_KEY_REPEAT_STRING			"1"
+#define DEFAULT_KEY_PREV_SONG_STRING		"2"
+#define DEFAULT_KEY_RANDOM_STRING			"3"
+#define DEFAULT_KEY_SEEK_BACK_STRING		"4"
+#define DEFAULT_KEY_PLAY_PAUSE_STRING		"5"
+#define DEFAULT_KEY_SEEK_FORWARD_STRING		"6"
+#define DEFAULT_KEY_NEXT_SONG_STRING		"8"
+#define DEFAULT_KEY_VOL_UP_STRING			"+"
+#define DEFAULT_KEY_VOL_DOWN_STRING			"*"   //lcdproc bug: does not accept "-" as client key.
+#define DEFAULT_KEY_CLEAR_PLAYLIST_STRING	"."
+
+
+Final Notes:
+
+At a later release the keys and host:port values of LCDd and mpd can be set in a config file.
+For now wxsmps expects to find LCDd on 127.0.0.1:13666 and mpd on 127.0.0.1:6600, which are the defaults.
