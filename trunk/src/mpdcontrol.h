@@ -24,45 +24,45 @@
 class MpdControl : public wxThreadHelper {
 public:
 	MpdControl(LcdWidgetsBase * _lcdWidgets);
-	void 		*Entry();
-	void 		Run();
-	bool		IsRunning();
-	bool		IsConnected();
+	void            *Entry();
+	void 		    Run();
+	bool		    IsRunning();
+	bool		    IsConnected();
 	
-	static void	HandleStatusChangedCB(MpdObj* mi,ChangedStatusType statusType, void* userData);
-	static void HandleConnectionStateChangedCB(MpdObj* mi,int connect, void* userData);
-	static void HandleErrorCB(MpdObj * mi, int id, char *msg, void* userData);
+	static void	    HandleStatusChangedCB(MpdObj* mi,ChangedStatusType statusType, void* userData);
+	static void     HandleConnectionStateChangedCB(MpdObj* mi,int connect, void* userData);
+	static void     HandleErrorCB(MpdObj * mi, int id, char *msg, void* userData);
 	
 	/*mpd controlling functions*/
-	void		Stop();
-	void		ToggleState();
-	void		Play();
-	void		Pause();
-	void		NextSong();
-	void		PrevSong();
-	void		SeekInCurrentSong(int seek);
-	void		ToggleRandom();
-	void		ToggleRepeat();
-	void		SetVolume(int diff);
-	void		SetCrossfade(int crossfade);
-	void		ClearPlayList();
-	void		RemoveSongFromPlayList(int id);
-	void		PlaySongFromPlayList(int id);
-	void		CropPlayListSong(int id);
+	void		    Stop();
+	void		    ToggleState();
+	void		    Play();
+	void		    Pause();
+	void		    NextSong();
+	void		    PrevSong();
+	void		    SeekInCurrentSong(int seek);
+	void		    ToggleRandom();
+	void		    ToggleRepeat();
+	void		    SetVolume(int diff);
+	void		    SetCrossfade(int crossfade);
+	void		    ClearPlayList();
+	void		    RemoveSongFromPlayList(int id);
+	void		    PlaySongFromPlayList(int id);
+	void		    CropPlayListSong(int id);
 	
 	
 	
 private:
 	/*member functions*/
-	void		OnStatusChanged(ChangedStatusType status);
-	void		OnConnectionChanged(int connected);
-	void		OnError(int id, char* msg);
-	bool		Connect();
-	bool		ReconnectWithTimeout();
+	void		    OnStatusChanged(ChangedStatusType status);
+	void		    OnConnectionChanged(int connected);
+	void		    OnError(int id, char* msg);
+	bool		    Connect();
+	bool		    ReconnectWithTimeout();
 	/*data members*/
-	MpdObj 		* dm_mpdConnection;
+	MpdObj 		    * dm_mpdConnection;
 	LcdWidgetsBase	* p_lcdWidgets;
-	bool		dm_isConnected;
+	bool		    dm_isConnected;
 };
 
 #endif /*MPDCONTROL_H_*/

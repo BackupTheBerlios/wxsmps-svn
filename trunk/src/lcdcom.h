@@ -37,26 +37,26 @@ class LcdComBase : public wxThreadHelper {
 		void		 		Run();
 		bool				IsRunning();
 		/* set/get properties */
-		void		SetDefaultConnectionTimeout(unsigned int s);
-		void		SetLcdHostName(const wxString& host);
-		void		GetLcdHostName(wxString& host);
-		void		SetLcdPort(const wxString& port);
-		void		GetLcdPort(wxString& port);
+		void                SetDefaultConnectionTimeout(unsigned int s);
+		void		        SetLcdHostName(const wxString& host);
+		void		        GetLcdHostName(wxString& host);
+		void	        	SetLcdPort(const wxString& port);
+		void		        GetLcdPort(wxString& port);
 
 		/* actions */
-		bool		ConnectToLcd();
-		bool		DisconnectFromLcd();
-		void		AddPendingMsg(const wxString& msg);
-		void		SendToLcd(const wxString& str);
-		void 		GetLcdResponce(bool hasToBeprocessed);
-		void		GetLcdResponce(wxString& str,int ms=50);
+		bool		        ConnectToLcd();
+		bool		        DisconnectFromLcd();
+		void		        AddPendingMsg(const wxString& msg);
+		void		        SendToLcd(const wxString& str);
+		void 		        GetLcdResponce(bool hasToBeprocessed);
+		void		        GetLcdResponce(wxString& str,int ms=50);
 		
 		/* status checks */
-		bool		IsConnected();
-		bool		IsDisconnected();
-		bool		HasErrorOccured();
-		void		LogLastError();
-		bool		HasLostConnection();
+		bool        		IsConnected();
+		bool	        	IsDisconnected();
+		bool        		HasErrorOccured();
+		void	        	LogLastError();
+		bool		        HasLostConnection();
 		/*
 		class Init;
 		friend struct 		LcdCom::Init;
@@ -80,51 +80,7 @@ class LcdComMenu : public LcdComBase {
 		virtual void		* Entry();
 };
 
-/*class LcdCom : public wxThreadHelper {
-	public:
-		public member functions
-		LcdCom();
-		void 		*Entry();
-		void 		Run();
-		bool		IsRunning();
-		~LcdCom();
-		class Init;
-		friend struct 		LcdCom::Init;
-		static LcdMsgList*	s_messageList;
-		LcdMsgList*			dm_messageList;
-		static wxMutex*			s_mutexProtectingGlobalMessageList;
-		
-		 set/get properties 
-		void		SetDefaultConnectionTimeout(unsigned int s);
-		void		SetLcdHostName(const wxString& host);
-		void		GetLcdHostName(wxString& host);
-		void		SetLcdPort(const wxString& port);
-		void		GetLcdPort(wxString& port);
-
-		 actions 
-		bool		ConnectToLcd();
-		bool		DisconnectFromLcd();
-		void		AddPendingMsg(const wxString& msg);
-		void		SendToLcd(const wxString& str);
-		void 		GetLcdResponce(bool hasToBeprocessed);
-		void		GetLcdResponce(wxString& str,int ms=50);
-		status checks
-		bool		IsConnected();
-		bool		IsDisconnected();
-		bool		HasErrorOccured();
-		void		LogLastError();
-		bool		HasLostConnection();
-
-		
-	private:
-		pointers to my other classes
-		data members
-		wxSocketClient			* dm_sock;
-		wxIPV4address			dm_addr;
-		
-		member functions
-};
-
+/*
 STATIC INITIALIZER/DEINITIALIZER
 class LcdCom::Init {
 	public:

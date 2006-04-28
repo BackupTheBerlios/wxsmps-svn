@@ -165,13 +165,6 @@ void LcdComBase::GetLcdResponce(wxString & str,int ms){
 		temp = wxString::FromAscii(buffer);
 		//std::cout << "Not Processing LCDProc said: " <<temp.mb_str(wxConvUTF8) << std::endl;	
 		str = temp;
-		//wxStringTokenizer strTok(temp,wxT("\n"));
-		//while (strTok.HasMoreTokens()){
-		//	if(!strTok.GetNextToken().Cmp(wxT("success"))){
-		//		str=strTok.GetNextToken();
-		//		std::cout << "Not Processing LCDProc said: " <<str.mb_str(wxConvUTF8) << std::endl;
-		//	}
-		//}
 	}
 	
 }
@@ -252,9 +245,26 @@ wxMutex*				LcdCom::s_mutexProtectingGlobalMessageList = NULL;
  * *************************************************/
 void *LcdComStatus::Entry(){
 	while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()&&this->IsConnected()){
-		this->SendToLcd(wxT("hello"));
-		this->GetLcdResponce(true);
+		//this->SendToLcd(wxT("hello"));
+		//this->GetLcdResponce(true);
 		
+		wxString responce;
+		this->GetLcdResponce(responce,0);
+		wxStringTokenizer tokenizer(responce,wxT("\n"));
+		if(tokenizer.CountTokens()>0){
+			while(tokenizer.HasMoreTokens()){
+				wxString toProcess = tokenizer.GetNextToken();
+				if(toProcess.Contains(wxT("key"))){
+						::wxGetApp().ProcessKeyPress(toProcess);
+				}
+			}
+		}
+		else{
+			if(responce.Contains(wxT("menuevent"))){
+				::wxGetApp().ProcessKeyPress(responce);
+			}
+				
+		}
 		GetThread()->Sleep(1);
 	}
 	return 0;
@@ -320,59 +330,3 @@ while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()&&this->IsConnected()
 	*/
 }
 
-
-/*
-while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()&&this->IsConnected()){
-		
-		LcdMsgList::Node* node = this->dm_messageList->GetFirst();
-		while(node){
-			LcdMessage* msg = node->GetData();
-			this->SendToLcd(msg->msg);
-			
-			wxString responce;
-			this->GetLcdResponce(responce,0);
-			wxStringTokenizer tokenizer(responce,wxT("\n"));
-			if(tokenizer.CountTokens()>0){
-				while(tokenizer.HasMoreTokens()){
-					wxString toProcess = tokenizer.GetNextToken();
-					if(toProcess.Contains(wxT("menuevent"))||toProcess.Contains(wxT("key"))){
-						::wxGetApp().ProcessUserRequest(toProcess);
-					}
-				}
-			}
-			else{
-				::wxGetApp().ProcessUserRequest(responce);
-			}
-			
-			LcdMsgList::Node* oldNode = node;
-			this->dm_messageList->DeleteNode(oldNode);
-			node = node->GetNext();
-		}
-		
-		this->SendToLcd(wxT("hello"));
-		wxString responce;
-		this->GetLcdResponce(responce,0);
-		wxStringTokenizer tokenizer(responce,wxT("\n"));
-		if(tokenizer.CountTokens()>0){
-			while(tokenizer.HasMoreTokens()){
-				wxString toProcess = tokenizer.GetNextToken();
-				if(toProcess.Contains(wxT("menuevent"))||toProcess.Contains(wxT("key"))){
-					::wxGetApp().ProcessUserRequest(toProcess);
-				}
-			}
-		}
-		else{
-			::wxGetApp().ProcessUserRequest(responce);
-		}
-		::wxGetApp().ProcessUserRequest(responce);
-		
-		GetThread()->Sleep(1);
-	}
-	return 0;
-	
-	while(true){
-		GetThread()->Sleep(100);
-	}
-	
-	
-*/

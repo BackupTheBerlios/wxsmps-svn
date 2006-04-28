@@ -116,7 +116,7 @@ int MyApp::OnRun(){
 int MyApp::MainLoop(){
 		
 	struct timespec test;
-	test.tv_sec  = 1;		/*was tv_sec und tv_nsec (Sek. und Nanosek.) enthält*/
+	test.tv_sec  = 1;
 	test.tv_nsec = 0;//50000000;//100000000;//500000000;
 	
 	
@@ -135,13 +135,8 @@ void MyApp::ProcessMenuEvents(const wxString &str){
 		this->ExitMainLoop();
 		return;
 	}
-	/*
-	if(str.Contains(wxT("key"))){//client key was probably pressed
-		this->ProcessKeyPress(str);
-		return;
-	}
-	*/
-	/*playlist stuff*/
+	
+    /*playlist stuff*/
 	if(str.Contains(wxString::Format(wxT("menuevent select %s"),wxT(M_PL_CLEAR_YES)))){//clear the playlist
 		this->dm_mpdControl->ClearPlayList();
 		return;
@@ -332,21 +327,20 @@ bool MyApp::IsMainLoopRunning(){
 }
 
 int MyApp::OnExit(){
-//	std::cout <<"Exiting." << std::endl;
 	std::cout <<"Shutting down mpdControl thread..."<<std::endl;
 	this->dm_mpdControl->GetThread()->Delete();
 	std::cout <<"Done."<<std::endl;
 	delete this->dm_mpdControl;
-	std::cout <<"Shutting down lcdCom Status thread..."<<std::endl;
-	this->dm_lcdComStatus->GetThread()->Delete();
-	std::cout <<"Done."<<std::endl;
-	this->dm_lcdComStatus->DisconnectFromLcd();
-	delete this->dm_lcdComStatus;
 	std::cout <<"Shutting down lcdCom Menu thread..."<<std::endl;
-	this->dm_lcdComMenu->GetThread()->Delete();
-	std::cout <<"Done."<<std::endl;
 	this->dm_lcdComMenu->DisconnectFromLcd();
+    this->dm_lcdComMenu->GetThread()->Delete();
+	std::cout <<"Done."<<std::endl;	
 	delete this->dm_lcdComMenu;
+	std::cout <<"Shutting down lcdCom Status thread..."<<std::endl;
+	this->dm_lcdComStatus->DisconnectFromLcd();
+    this->dm_lcdComStatus->GetThread()->Delete();
+	std::cout <<"Done."<<std::endl;
+	delete this->dm_lcdComStatus;
 	std::cout <<"Goodbye."<<std::endl;
 	return this->wxAppConsole::OnExit();
 }

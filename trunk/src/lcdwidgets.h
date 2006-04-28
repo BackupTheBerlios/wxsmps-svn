@@ -116,8 +116,8 @@ class LcdWidgetsBase {
     friend class LcdWidgetsSmall;
     public:
         LcdWidgetsBase(LcdComStatus* _lcdComS,LcdComMenu* _lcdComM,int _w,int _h,const wxString & _plyStateStrF,const wxString & _eTimeStrF)
-        {	p_lcdComStatus=_lcdComS;p_lcdComMenu=_lcdComM;dm_lcdWidth=_w;dm_lcdHeight=_h;dm_playerStateStrFormat=_plyStateStrF;
-        	dm_elapsedTimeStrFormat=_eTimeStrF;dm_elapsedTime=0;dm_totalTime=0;dm_charState=DEFAULT_UNKOWN_CHAR;dm_charRepeat=DEFAULT_UNKOWN_CHAR;dm_charRandom=DEFAULT_UNKOWN_CHAR;}
+        {p_lcdComStatus=_lcdComS;p_lcdComMenu=_lcdComM;dm_lcdWidth=_w;dm_lcdHeight=_h;dm_playerStateStrFormat=_plyStateStrF;
+        dm_elapsedTimeStrFormat=_eTimeStrF;dm_elapsedTime=0;dm_totalTime=0;dm_charState=DEFAULT_UNKOWN_CHAR;dm_charRepeat=DEFAULT_UNKOWN_CHAR;dm_charRandom=DEFAULT_UNKOWN_CHAR;}
         virtual			~LcdWidgetsBase(){}
         void            UpdateState(MpdState _state);
         void	 		UpdateElapsedTime(int _elapsedTime);
