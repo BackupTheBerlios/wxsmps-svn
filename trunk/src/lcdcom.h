@@ -36,7 +36,8 @@ class LcdComBase : public wxThreadHelper {
 		virtual void 		* Entry();
 		void		 		Run();
 		bool				IsRunning();
-		/* set/get properties */
+		void                final();
+        /* set/get properties */
 		void                SetDefaultConnectionTimeout(unsigned int s);
 		void		        SetLcdHostName(const wxString& host);
 		void		        GetLcdHostName(wxString& host);

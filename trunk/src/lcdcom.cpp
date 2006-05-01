@@ -70,6 +70,10 @@ bool LcdComBase::IsRunning(){
     return false;
 }
 
+void LcdComBase::final(){
+    this->dm_sock->Close();
+}
+
 void LcdComBase::SetLcdHostName(const wxString& host){
 	this->dm_addr.Hostname(host);
 }
@@ -244,9 +248,7 @@ wxMutex*				LcdCom::s_mutexProtectingGlobalMessageList = NULL;
  * **********LcdComStatus Class*********************
  * *************************************************/
 void *LcdComStatus::Entry(){
-	while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()&&this->IsConnected()){
-		//this->SendToLcd(wxT("hello"));
-		//this->GetLcdResponce(true);
+	while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()){
 		
 		wxString responce;
 		this->GetLcdResponce(responce,0);
@@ -260,13 +262,16 @@ void *LcdComStatus::Entry(){
 			}
 		}
 		else{
-			if(responce.Contains(wxT("menuevent"))){
+			if(responce.Contains(wxT("key"))){
 				::wxGetApp().ProcessKeyPress(responce);
 			}
 				
 		}
-		GetThread()->Sleep(1);
+		this->SendToLcd(wxT("hello"));
+		//this->GetLcdResponce(true);
+        GetThread()->Sleep(1);
 	}
+    this->final();
 	return 0;
 }
 
@@ -274,7 +279,7 @@ void *LcdComStatus::Entry(){
  * **********LcdComMenu Class***********************
  * *************************************************/
 void *LcdComMenu::Entry(){
-while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()&&this->IsConnected()){
+while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()){
 		
 		LcdMsgList::Node* node = this->dm_messageList->GetFirst();
 		while(node){
@@ -322,6 +327,7 @@ while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()&&this->IsConnected()
 		
 		GetThread()->Sleep(1);
 	}
+    this->final();
 	return 0;
 	/*
 	while(true){

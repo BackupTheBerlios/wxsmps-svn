@@ -332,12 +332,12 @@ int MyApp::OnExit(){
 	std::cout <<"Done."<<std::endl;
 	delete this->dm_mpdControl;
 	std::cout <<"Shutting down lcdCom Menu thread..."<<std::endl;
-	this->dm_lcdComMenu->DisconnectFromLcd();
+	//this->dm_lcdComMenu->DisconnectFromLcd();
     this->dm_lcdComMenu->GetThread()->Delete();
 	std::cout <<"Done."<<std::endl;	
 	delete this->dm_lcdComMenu;
 	std::cout <<"Shutting down lcdCom Status thread..."<<std::endl;
-	this->dm_lcdComStatus->DisconnectFromLcd();
+	//this->dm_lcdComStatus->DisconnectFromLcd();
     this->dm_lcdComStatus->GetThread()->Delete();
 	std::cout <<"Done."<<std::endl;
 	delete this->dm_lcdComStatus;
