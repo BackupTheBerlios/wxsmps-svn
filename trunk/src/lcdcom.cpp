@@ -287,7 +287,7 @@ while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()){
 			this->SendToLcd(msg->msg);
 			
 			wxString responce;
-			this->GetLcdResponce(responce,0);
+			this->GetLcdResponce(responce,1);
 			wxStringTokenizer tokenizer(responce,wxT("\n"));
 			if(tokenizer.CountTokens()>0){
 				while(tokenizer.HasMoreTokens()){
@@ -311,7 +311,7 @@ while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()){
 		
 		this->SendToLcd(wxT("hello"));
 		wxString responce;
-		this->GetLcdResponce(responce,0);
+		this->GetLcdResponce(responce,1);
 		wxStringTokenizer tokenizer(responce,wxT("\n"));
 		if(tokenizer.CountTokens()>0){
 			while(tokenizer.HasMoreTokens()){
