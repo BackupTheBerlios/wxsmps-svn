@@ -36,7 +36,8 @@ LcdComBase::LcdComBase()
 	/* create instance of sock object*/
 	this->dm_sock = new wxSocketClient(wxSOCKET_NONE);
 	this->dm_messageList = new LcdMsgList();
-	//this->dm_sock->SetTimeout(0);
+	this->dm_messageList->DeleteContents(true);
+    //this->dm_sock->SetTimeout(0);
 }
 
 LcdComBase::~LcdComBase() {
