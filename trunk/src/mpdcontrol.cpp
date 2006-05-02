@@ -95,7 +95,11 @@ bool MpdControl::Connect(){
 bool MpdControl::ReconnectWithTimeout(){
 	wxThread *t = GetThread();
     if(t){
-    	std::cout << "\tTrying to reconnect to mpd."<< std::endl;
+        if(t->TestDestroy()){
+            std::cout <<"Not trying to reconnect to mpd because user wants to exit app."<<std::endl;
+            return true;
+        }
+        std::cout << "\tTrying to reconnect to mpd."<< std::endl;
     	t->Sleep(5000);
     	return this->Connect();
     }

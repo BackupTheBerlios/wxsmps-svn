@@ -107,6 +107,7 @@ int MyApp::OnRun(){
 	if(!this->dm_mpdControl->IsRunning()){
 		this->dm_mpdControl->Run();
 	}
+    
 	
 	this->dm_runningMainLoop=true;
 	return MainLoop();
@@ -327,20 +328,20 @@ bool MyApp::IsMainLoopRunning(){
 }
 
 int MyApp::OnExit(){
-	std::cout <<"Shutting down mpdControl thread..."<<std::endl;
+
+    std::cout <<"Shutting down mpdControl thread..."<<std::endl;
 	this->dm_mpdControl->GetThread()->Delete();
 	std::cout <<"Done."<<std::endl;
 	delete this->dm_mpdControl;
-	std::cout <<"Shutting down lcdCom Menu thread..."<<std::endl;
-	//this->dm_lcdComMenu->DisconnectFromLcd();
+    std::cout <<"Shutting down lcdCom Menu thread..."<<std::endl;
     this->dm_lcdComMenu->GetThread()->Delete();
 	std::cout <<"Done."<<std::endl;	
 	delete this->dm_lcdComMenu;
 	std::cout <<"Shutting down lcdCom Status thread..."<<std::endl;
-	//this->dm_lcdComStatus->DisconnectFromLcd();
     this->dm_lcdComStatus->GetThread()->Delete();
 	std::cout <<"Done."<<std::endl;
-	delete this->dm_lcdComStatus;
-	std::cout <<"Goodbye."<<std::endl;
+	delete this->dm_lcdComStatus;	
+    std::cout <<"Goodbye."<<std::endl;
 	return this->wxAppConsole::OnExit();
+    
 }

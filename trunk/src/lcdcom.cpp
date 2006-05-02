@@ -34,10 +34,11 @@ LcdComBase::LcdComBase()
 : wxThreadHelper()
 {
 	/* create instance of sock object*/
-	this->dm_sock = new wxSocketClient(wxSOCKET_NONE);
+	//this->dm_sock = new wxSocketClient(wxSOCKET_NONE);
+	this->dm_sock = new wxSocketClient(wxSOCKET_BLOCK && wxSOCKET_WAITALL);
 	this->dm_messageList = new LcdMsgList();
 	this->dm_messageList->DeleteContents(true);
-    //this->dm_sock->SetTimeout(0);
+    this->dm_sock->SetTimeout(1);
 }
 
 LcdComBase::~LcdComBase() {
@@ -130,7 +131,12 @@ void LcdComBase::SendToLcd(const wxString& str){
 		wxString sendStr = str + wxT("\n");
 		//this->dm_sock->WaitForWrite(0,300);
 		//std::cout << "About to send this to lcd: " << sendStr.mb_str(wxConvUTF8) <<std::endl;
-		this->dm_sock->Write(sendStr.mb_str(wxConvISO8859_1),sendStr.Length());
+		if (this->dm_sock->WaitForWrite(1,0)){
+            this->dm_sock->Write(sendStr.mb_str(wxConvISO8859_1),sendStr.Length());
+        }
+        else{
+            std::cout << "Socket did not become writable."<<std::endl;
+        }
 	}
 }
 
@@ -163,11 +169,17 @@ void LcdComBase::GetLcdResponce(wxString & str,int ms){
 		int actualRecv = 0;
 		char buffer[8192];
 		wxString temp; 
-		this->dm_sock->WaitForRead(0,ms);
-		this->dm_sock->Read(buffer,8192);
-		actualRecv = this->dm_sock->LastCount();
-		buffer[actualRecv] = '\0';
-		temp = wxString::FromAscii(buffer);
+		//this->dm_sock->WaitForRead(0,ms);
+		if(this->dm_sock->WaitForRead(1)){
+		    this->dm_sock->Read(buffer,8192);
+		    actualRecv = this->dm_sock->LastCount();
+		    buffer[actualRecv] = '\0';
+            temp = wxString::FromAscii(buffer);
+        }
+        else{
+            std::cout << "Socket did not become readable." <<std::endl;
+            temp=wxT("");
+        }
 		//std::cout << "Not Processing LCDProc said: " <<temp.mb_str(wxConvUTF8) << std::endl;	
 		str = temp;
 	}
@@ -268,8 +280,7 @@ void *LcdComStatus::Entry(){
 			}
 				
 		}
-		this->SendToLcd(wxT("hello"));
-		//this->GetLcdResponce(true);
+		//this->SendToLcd(wxT("hello"));
         GetThread()->Sleep(1);
 	}
     this->final();
@@ -310,7 +321,7 @@ while(!GetThread()->TestDestroy()&&!this->HasErrorOccured()){
 			node = node->GetNext();
 		}
 		
-		this->SendToLcd(wxT("hello"));
+		//this->SendToLcd(wxT("hello"));
 		wxString responce;
 		this->GetLcdResponce(responce,1);
 		wxStringTokenizer tokenizer(responce,wxT("\n"));
