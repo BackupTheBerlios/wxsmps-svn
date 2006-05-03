@@ -33,6 +33,7 @@ MpdControl::MpdControl(LcdWidgetsBase * _lcdWidgets)
 void MpdControl::Run(){
 	if( IsRunning() ) return;                   // we are already doing something!
     wxThreadHelper::Create();                   // create thread
+    this->Connect();
     GetThread()->Run();                         // run.....
 }
 
@@ -57,8 +58,7 @@ bool MpdControl::IsRunning()
 
 void *MpdControl::Entry(){
 	
-	if(!this->Connect()){
-		std::cout <<"Could not connect to mpd. Retrying..."<<std::endl;
+	if(!this->IsConnected()){
 		do{}while(!this->ReconnectWithTimeout());
 	}
 	
@@ -67,10 +67,7 @@ void *MpdControl::Entry(){
     mpd_signal_connect_error(this->dm_mpdConnection,MpdControl::HandleErrorCB,(void*)this);
 	
 	while(!GetThread()->TestDestroy()){
-	//while(mpd_check_connected(this->dm_mpdConnection)){
 		mpd_status_update(this->dm_mpdConnection);//check update to receive signals
-	
-		//std::cout <<"\t MPD Thread running."<<std::endl;
 		GetThread()->Sleep(100);
 	}
 	return 0;
@@ -99,7 +96,7 @@ bool MpdControl::ReconnectWithTimeout(){
             std::cout <<"Not trying to reconnect to mpd because user wants to exit app."<<std::endl;
             return true;
         }
-        std::cout << "\tTrying to reconnect to mpd."<< std::endl;
+        std::cout <<"Retrying with 5 seconds interval..."<<std::endl;
     	t->Sleep(5000);
     	return this->Connect();
     }
