@@ -58,10 +58,6 @@ void LcdWidgetsBase::UpdateCrossfade(int _crossfade){
 	p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_set_item %s %s -value %d"),wxT(M_M_SETTINGS),wxT(M_SET_CROSSFADE),_crossfade));
 }
 
-void LcdWidgetsBase::UpdateCurSongID(int id){
-	this->dm_curSongID=id;
-}
-
 void LcdWidgetsBase::UpdatePlaylist(MpdData * _mpdData,int plLen){
 	
 	this->p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_del_item \"%s\" %s"),wxT(M_M_PLAYLIST),wxT(M_PL_BROWSE)));
@@ -76,7 +72,8 @@ void LcdWidgetsBase::UpdatePlaylist(MpdData * _mpdData,int plLen){
 			if(_mpdData->type == MPD_DATA_TYPE_SONG){
 				int id = _mpdData->song->id;
 				int pos = _mpdData->song->pos;
-				wxString * strTitle;
+			                
+                wxString * strTitle;
 				if(_mpdData->song->title){
 					strTitle = new wxString(_mpdData->song->title,wxConvUTF8); 
 				}
@@ -93,15 +90,19 @@ void LcdWidgetsBase::UpdatePlaylist(MpdData * _mpdData,int plLen){
 				this->p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"pl_song_%d\" \"rem_pl_song_%d\" action \"Remove\" -next \"_quit_\""),id,id));
 				this->p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"pl_song_%d\" \"crop_pl_song_%d\" action \"Crop\" -next \"_quit_\""),id,id));				
 				
-				if(strTitle){
+                /*update shortcut to cur song in playlist menu. If UpdatePlayedSong() tries to set -next value 
+                of the shortcut to cur song menu action before the menu item, to point to, has been added by this member function
+                lcdproc will reject the attempt as error. To make sure that the shortcut points to the current song we set it here (probably) again.*/
+                if(id == this->GetCurSongID()){
+                    this->UpdatePLShortcutToCurSong(wxString::Format(wxT("pl_song_%d"),id));
+                }
+	
+				/*clean up*/
+                if(strTitle){
 					delete strTitle;
 				}
 			}
 			_mpdData=mpd_data_get_next(_mpdData);
-			/*if(plLen>12){
-				wxString tmp;
-				this->p_lcdCom->GetLcdResponce(tmp,1);
-			}*/
 		}
 		/*
 		else{//pointed to nothing
@@ -119,7 +120,8 @@ void LcdWidgetsBase::UpdatePlaylist(MpdData * _mpdData,int plLen){
 }
 
 void LcdWidgetsBase::InitMainMenu(){
-	p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"\" %s menu \"%s\""),wxT(M_M_PLAYLIST),wxT(M_M_PLAYLIST_LABEL)));
+    p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"\" %s menu \"%s\""),wxT(M_M_PLAYLIST),wxT(M_M_PLAYLIST_LABEL)));
+	p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"%s\" %s action \"%s\" -next \"%s\""),wxT(M_M_PLAYLIST),wxT(M_PL_GOTO_CURRENT_SONG),wxT(M_PL_GOTO_CURRENT_SONG_LABEL),wxT(M_M_PLAYLIST)));
 	p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"%s\" %s menu \"%s\""),wxT(M_M_PLAYLIST),wxT(M_PL_BROWSE),wxT(M_PL_BROWSE_LABEL)));
 	p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"%s\" %s menu \"%s\""),wxT(M_M_PLAYLIST),wxT(M_PL_CLEAR),wxT(M_PL_CLEAR_LABEL)));
 	p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_add_item \"%s\" %s action \"%s\" -next \"_quit_\""),wxT(M_PL_CLEAR),wxT(M_PL_CLEAR_YES),wxT(M_PL_CLEAR_YES_LABEL)));
@@ -147,6 +149,14 @@ void LcdWidgetsBase::InitClientKeys(){
 	p_lcdComStatus->SendToLcd(wxString::Format(wxT("client_add_key %s"),wxT(DEFAULT_KEY_CLEAR_PLAYLIST_STRING)));
 }
 
+void LcdWidgetsBase::UpdateCurSongID(int _id){
+    this->dm_curSongID=_id;
+}
+
+int LcdWidgetsBase::GetCurSongID(){
+    return this->dm_curSongID;
+}
+
 void LcdWidgetsBase::UpdateStateChar(){
 	this->dm_charState=DEFAULT_UNKOWN_CHAR;
 	switch(this->dm_state){
@@ -167,6 +177,14 @@ void LcdWidgetsBase::UpdateStateChar(){
 			break;
 	}
 	this->UpdatePlayerStateLine();
+}
+
+void LcdWidgetsBase::UpdatePLShortcutToCurSong(const wxString & menuItem){
+    if(!menuItem.IsEmpty()){
+        /*update playlist shortcut to current song*/
+        this->p_lcdComMenu->AddPendingMsg(wxString::Format(wxT("menu_set_item \"%s\" %s -next \"%s\""),wxT(M_M_PLAYLIST),wxT(M_PL_GOTO_CURRENT_SONG),menuItem.c_str()));
+
+    }
 }
 
 void LcdWidgetsBase::UpdateElapsedTimeStr(){
@@ -286,11 +304,14 @@ void LcdWidgetsFourLines::InitPlayerScreen(){
 
 void LcdWidgetsFourLines::UpdatePlayedSong(mpd_Song * song){
 	wxString * strArtist,* strTitle,* strAlbum;
+    wxString plItem=wxT(""); //this holds the menu item passed to UpdatePLShortCutToCurSong()
 	if(song!=NULL){
-		/*update current song id*/
-		this->UpdateCurSongID(song->id);
-		
-		/*artist*/
+		/*update data member dm_curSongID*/
+        this->UpdateCurSongID(song->id);
+        /*set plItem to pl_song_<song ID>  */
+        plItem=wxString::Format(wxT("pl_song_%d"),song->id);
+        
+        /*artist*/
 		if(song->artist){
 			strArtist = new wxString(song->artist,wxConvUTF8);
 			this->EscapeChars(*strArtist);
@@ -323,10 +344,12 @@ void LcdWidgetsFourLines::UpdatePlayedSong(mpd_Song * song){
 			std::cout <<"Album field not set"<<std::endl;
 			strAlbum=new wxString(wxT("n/a"));
 		}
-											
 	}
 	else {//pointer was NULL
-		strArtist = new wxString(wxT(DEFAULT_ARTIST_STRING));
+        /*set plItem to playlist menu*/
+        plItem=wxT(M_M_PLAYLIST);
+		/*set meta info to defaults*/
+        strArtist = new wxString(wxT(DEFAULT_ARTIST_STRING));
 		strTitle = new wxString(wxT(DEFAULT_TITLE_STRING));
 		strAlbum = new wxString(wxT(DEFAULT_ALBUM_STRING));
 	}
@@ -338,8 +361,10 @@ void LcdWidgetsFourLines::UpdatePlayedSong(mpd_Song * song){
 	
 	p_lcdComStatus->SendToLcd(wxString::Format(wxT("widget_set %s %s 1 3 %d 1 h %d \"%s\""),	wxT(SCREEN_PLAYER),wxT(SCREEN_PLAYER_SCROLLER_ALBUM),this->dm_lcdWidth,
 																						DEFAULT_SCROLLER_SPEED,strAlbum->c_str()));
-																							
-	if(strArtist){
+	/*update shortcut to current song in playlist menu*/
+    UpdatePLShortcutToCurSong(plItem);
+	
+    if(strArtist){
 		delete strArtist;
 	}
 	
@@ -373,11 +398,15 @@ if(this->p_lcdComStatus!=NULL){
 }
 
 void LcdWidgetsTwoLines::UpdatePlayedSong(mpd_Song * song){
-	if(song!=NULL){
-		/*update current song id*/
-		this->UpdateCurSongID(song->id);
+	wxString plItem=wxT("");
+    if(song!=NULL){
+        
+		/*update data member dm_curSongID*/
+        this->UpdateCurSongID(song->id);
+        /*set plItem to pl_song_<song ID>  */
+        plItem=wxString::Format(wxT("pl_song_%d"),song->id);
 		
-		wxString artistTitleStr;
+        wxString artistTitleStr;
 		if(!song->artist || !song->title){
 			this->ExtractFileNameFromSongPath(song,artistTitleStr);
 		}
@@ -390,15 +419,17 @@ void LcdWidgetsTwoLines::UpdatePlayedSong(mpd_Song * song){
 		//append total track time (00:00)
 		artistTitleStr=artistTitleStr + wxT(" (") + this->dm_totalTimeStr + wxT(")");
 		
-		p_lcdComStatus->SendToLcd(wxString::Format(wxT("widget_set %s %s 1 1 %d 1 h %d \"%s\""),	wxT(SCREEN_PLAYER),wxT(SCREEN_PLAYER_SCROLLER_ARTIST_TITLE),this->dm_lcdWidth,
-																							DEFAULT_SCROLLER_SPEED,artistTitleStr.c_str()));
-	}
+		p_lcdComStatus->SendToLcd(wxString::Format(wxT("widget_set %s %s 1 1 %d 1 h %d \"%s\""),	wxT(SCREEN_PLAYER),wxT(SCREEN_PLAYER_SCROLLER_ARTIST_TITLE),this->dm_lcdWidth,DEFAULT_SCROLLER_SPEED,artistTitleStr.c_str()));
+    }
 	else{
 		std::cout <<"Pointer to mpd_Song is NULL!!" << std::endl;
+        /*set plItem to playlist menu*/
+        plItem=wxT(M_M_PLAYLIST);
 		
-		p_lcdComStatus->SendToLcd(wxString::Format(wxT("widget_set %s %s 1 1 %d 1 h %d \"%s\""),	wxT(SCREEN_PLAYER),wxT(SCREEN_PLAYER_SCROLLER_ARTIST_TITLE),this->dm_lcdWidth,
-																							DEFAULT_SCROLLER_SPEED,wxT(DEFAULT_ARTIST_TITLE_STRING)));	
+        p_lcdComStatus->SendToLcd(wxString::Format(wxT("widget_set %s %s 1 1 %d 1 h %d \"%s\""),	wxT(SCREEN_PLAYER),wxT(SCREEN_PLAYER_SCROLLER_ARTIST_TITLE),this->dm_lcdWidth,DEFAULT_SCROLLER_SPEED,wxT(DEFAULT_ARTIST_TITLE_STRING)));
 	}
+    /*update shortcut to current song in playlist menu*/
+    UpdatePLShortcutToCurSong(plItem);
 }
 
 

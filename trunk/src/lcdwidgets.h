@@ -81,7 +81,7 @@
 
 #define M_PL_BROWSE_LABEL					"Browse..."
 #define M_PL_CLEAR_LABEL					"Clear?"
-#define M_PL_GOTO_CURRENT_SONG_LABEL		"Jump to cur. song"
+#define M_PL_GOTO_CURRENT_SONG_LABEL		"Goto current song"
 
 /*Playlist clear menu*/
 #define M_PL_CLEAR_YES						"m_pl_clear_yes"
@@ -134,8 +134,10 @@ class LcdWidgetsBase {
 		virtual void	UpdatePlayerStateLine();
 		virtual void	UpdatePlayedSong(mpd_Song *);
     private:
+        void            UpdateCurSongID(int _id);
+        int             GetCurSongID();
         void            UpdateStateChar();
-        void			UpdateCurSongID(int id);
+        void            UpdatePLShortcutToCurSong(const wxString & menuItem);
         void            UpdateElapsedTimeStr();
         void			UpdateTotalTimeStr();
         void            UpdateRandomChar();
@@ -152,9 +154,8 @@ class LcdWidgetsBase {
 	    bool			dm_random;
 	    int				dm_elapsedTime;
 	    int				dm_totalTime;
-	    int				dm_curSongID;
 	    int				dm_crossfade;
-	
+        int             dm_curSongID;
 	    wxChar			dm_charState;
 		wxChar			dm_charRepeat;
 		wxChar			dm_charRandom;        

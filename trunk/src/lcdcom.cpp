@@ -134,9 +134,11 @@ void LcdComBase::SendToLcd(const wxString& str){
 		if (this->dm_sock->WaitForWrite(1,0)){
             this->dm_sock->Write(sendStr.mb_str(wxConvISO8859_1),sendStr.Length());
         }
+        /*
         else{
             std::cout << "Socket did not become writable."<<std::endl;
         }
+        */
 	}
 }
 
@@ -176,10 +178,12 @@ void LcdComBase::GetLcdResponce(wxString & str,int ms){
 		    buffer[actualRecv] = '\0';
             temp = wxString::FromAscii(buffer);
         }
+        /*
         else{
             std::cout << "Socket did not become readable." <<std::endl;
             temp=wxT("");
         }
+        */
 		//std::cout << "Not Processing LCDProc said: " <<temp.mb_str(wxConvUTF8) << std::endl;	
 		str = temp;
 	}
