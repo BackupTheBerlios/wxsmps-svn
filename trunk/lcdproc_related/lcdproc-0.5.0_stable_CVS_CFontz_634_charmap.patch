@@ -1,0 +1,43 @@
+diff -Naur lcdproc-CVS-stable-0-5-x-20060628/server/drivers/CFontz.c lcdproc-CVS-stable-0-5-x-20060628.new/server/drivers/CFontz.c
+--- lcdproc-CVS-stable-0-5-x-20060628/server/drivers/CFontz.c	2006-05-21 22:26:21.000000000 +0200
++++ lcdproc-CVS-stable-0-5-x-20060628.new/server/drivers/CFontz.c	2006-06-28 22:54:30.000000000 +0200
+@@ -39,6 +39,7 @@
+ #include "CFontz.h"
+ #include "report.h"
+ #include "lcd_lib.h"
++#include "CFontz-charmap.h"
+ 
+ 
+ /* Constants for userdefchar_mode */
+@@ -361,9 +362,15 @@
+ 		c += 128;
+ 
+ 	// For V2 of the firmware to get the block to display right
+-	if (p->newfirmware && (c == 255))
++	if (p->newfirmware && (c == 255)){
+ 		c = 214;
++        
++    }
++    else{
++        c = CFontz_charmap[(unsigned) c];
++    }
+ 
++	/*p->framebuf[(y * p->width) + x] = c;*/
+ 	p->framebuf[(y * p->width) + x] = c;
+ }
+ 
+@@ -807,9 +814,12 @@
+ 		unsigned char c = string[i];
+ 
+ 		// For V2 of the firmware to get the block to display right
+-		if (p->newfirmware && (c == 255))
++		if (p->newfirmware && (c == 255)){
+ 			c = 214;
+-
++        }
++        else{
++            c = CFontz_charmap[(unsigned) c];
++        }
+ 		// Check for buffer overflows...
+ 		if (x >= 0)
+ 			p->framebuf[(y * p->width) + x] = c;
