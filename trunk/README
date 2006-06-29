@@ -26,6 +26,27 @@ g++ `wx-config --cxxflags --libs base,net` -L/usr/local/lib -lmpd *.cpp -o wxsmp
 Be sure to have at least lcdproc ver 0.5.0. Versions prior to that don't have the menu system implemented.
 http://lcdproc.omnipotent.net/download.php3
 
+Until an official minor upgrade release to 0.5.0 has been released (next should be 0.5.1), it is strongly recommanded to get a nightly build of the stable-0-5-x CVS branch.
+http://lcdproc.sourceforge.net/nightly/
+
+Notably a nasty bug, that lets LCDd exit unexpectedly after clients disconnect, has been corrected in the stable-0-5-x CVS. See also my bug report and the following discussion on the lcdproc mailing list.
+http://lists.omnipotent.net/pipermail/lcdproc/2006-May/010774.html
+
+
+####################### Additional note for Crystal Fontz 634 display users ###########################
+Users with a CF634 display (like me :) who see weird characters on the playing screen of wxsmps will want to patch the stable-0-5-x CVS of lcdproc with the patch provided with wxsmps (in the lcdproc_related dir).
+
+The weird characters are these:
+Random on: ü instead of ~  
+Repeat off: ö instead of |
+Repeat on: Ñ instead of ]
+
+(Thanks to richieb for inspiring me to include a lcdproc patch in wxsmps ;)
+########################################################################################################
+
+
+
+
 edit config of LCDd
 
 have drivers enabled in that order (lirc if you have a remote of course)
